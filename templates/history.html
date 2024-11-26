@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image History</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        /* Hamburger Menu Styles */
+        .hamburger-menu {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .hamburger-menu button {
+            font-size: 22px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-menu button:hover {
+            background-color: #555;
+        }
+
+        /* Dropdown Menu Content */
+        .hamburger-menu-content {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 50px;
+            background-color: #fff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            min-width: 250px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .hamburger-menu-content a {
+            color: #333;
+            padding: 12px;
+            text-decoration: none;
+            display: block;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger-menu-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .hamburger-menu:hover .hamburger-menu-content {
+            display: block;
+        }
+
+        /* Main Content Section */
+        .main-content {
+            margin-left: 250px; /* Space for the fixed menu */
+            margin-top: 80px; /* Adds space for the fixed menu */
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        /* Image History Section */
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .history-item img {
+            max-width: 120px;
+            height: auto;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+
+        .history-item div {
+            flex-grow: 1;
+        }
+
+        .history-item p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .history-item p strong {
+            color: #007BFF;
+        }
+
+        /* Scrollable History Section */
+        .history-scroll-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .no-history-message {
+            text-align: center;
+            font-size: 18px;
+            color: #888;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger-menu button {
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            .hamburger-menu-content {
+                min-width: 200px;
+            }
+
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .history-item img {
+                max-width: 80px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hamburger Menu -->
+    <div class="hamburger-menu">
+        <button>☰</button>
+        <div class="hamburger-menu-content">
+            <p style="padding: 12px; font-size: 16px; color: #333;">User: {{ username }}</p>
+            <a href="/auth/logout">Logout</a>
+            <a href="/">Upload Image</a>
+        </div>
+    </div>
+
+    <!-- Main Content Section -->
+    <div class="main-content">
+        <h1>Your Image History</h1>
+
+        {% if image_data %}
+            <div class="history-item">
+                <h3>Previous Images and Predictions:</h3>
+            </div>
+
+            <!-- Show first 3 history items -->
+            {% for entry in image_data[:3] %}
+                <div class="history-item">
+                    <img src="{{ url_for('static', filename=entry['image_path'].replace('static/', '')) }}" alt="Previous Image">
+                    <div>
+                        <p><strong>Prediction:</strong> {{ entry['prediction'] }}</p>
+                        <p><strong>Confidence:</strong> {{ entry['confidence'] | round(2) }}%</p>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Scrollable Container for remaining images if more than 3 -->
+            {% if image_data|length > 3 %}
+                <div class="history-scroll-container">
+                    {% for entry in image_data[3:] %}
+                        <div class="history-item">
+                            <img src="{{ url_for('static', filename=entry['image_path'].replace('static/', '')) }}" alt="Previous Image">
+                            <div>
+                                <p><strong>Prediction:</strong> {{ entry['prediction'] }}</p>
+                                <p><strong>Confidence:</strong> {{ entry['confidence'] | round(2) }}%</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% else %}
+            <p class="no-history-message">You have no previous search history.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>

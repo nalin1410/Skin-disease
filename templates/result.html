@@ -1,0 +1,16 @@
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+</head>
+<body>
+    <h1>Prediction Result</h1>
+    <p>Prediction: {{ prediction }}</p>
+    <p>Confidence: {{ confidence | round(2) }}</p>
+    <img src="{{ image_path }}" alt="Uploaded Image" style="max-width:300px;">
+    <br><br>
+    <a href="/">Upload Another Image</a>
+</body>
+</html> add hamburger menu in index and result and it should contain user info like email and a logout button

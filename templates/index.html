@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Disease Detection</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        /* Align hamburger menu to the left */
+        .hamburger {
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .hamburger div {
+            width: 30px;
+            height: 4px;
+            background-color: white;
+            margin: 6px 0;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        /* The menu now pops up on the left */
+        .menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 30px; /* Align the menu to the left */
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .menu.active {
+            display: block;
+        }
+
+        .menu a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .menu a:hover {
+            background-color: #f4f4f4;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 40px 30px;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .upload-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .upload-form input[type="file"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 80%;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .button {
+            padding: 12px 30px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .result {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result h2 {
+            font-size: 24px;
+            color: #007BFF;
+            margin-bottom: 15px;
+        }
+
+        .result img {
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .recommendations {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .recommendations h3 {
+            font-size: 22px;
+            margin-top: 0;
+            color: #007BFF;
+        }
+
+        .recommendations ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+
+        .recommendations li {
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .link-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .link-container a {
+            color: #007BFF;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .link-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive design adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hamburger {
+                margin-top: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .upload-form input[type="file"] {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .button {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <!-- Hamburger icon -->
+    <div class="hamburger" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- Menu that now pops up on the left -->
+    <div class="menu" id="menu">
+        <a href="javascript:void(0)" onclick="showEmail()">User: {{ username }}</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+    </div>
+</header>
+
+<div class="main-content">
+    <h1>Upload Skin Image for Prediction</h1>
+
+    <div class="upload-form">
+        <form action="/" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <br>
+            <button type="submit" class="button">Predict</button>
+        </form>
+    </div>
+
+    {% if prediction %}
+    <div class="result">
+        <h2>Prediction: {{ prediction }}</h2>
+        <p>Confidence: {{ (confidence * 100)|round(2) }}%</p> <!-- Fixed percentage calculation -->
+        <img src="{{ url_for('static', filename='user_images/' + image_path.split('/')[-1]) }}" alt="Uploaded Image" width="300">
+        <br>
+        <a href="/" class="button">Upload Another Image</a>
+    </div>
+
+    <!-- Displaying recommended course of action -->
+    <div class="recommendations">
+        <h3>Recommended Course of Action for {{ prediction }}:</h3>
+        <ul>
+            {% if prediction == "Eczema" %}
+    <li>Moisturizers: Regular use to prevent dryness (e.g., emollients).</li>
+    <li>Topical Steroids: To reduce inflammation (e.g., hydrocortisone).</li>
+    <li>Antihistamines: For itching.</li>
+    <li>Immunomodulators: Such as tacrolimus for severe cases.</li>
+    <li>Lifestyle Changes: Avoid triggers, maintain skin hydration.</li>
+{% elif prediction == "Warts, Molluscum, and Other Viral Infections" %}
+    <li>Cryotherapy: Freezing the lesion with liquid nitrogen.</li>
+    <li>Topical Agents: Salicylic acid or imiquimod.</li>
+    <li>Laser Therapy: For resistant warts.</li>
+    <li>Curettage: Surgical removal.</li>
+    <li>Antiviral Treatments: In some cases for molluscum contagiosum.</li>
+{% elif prediction == "Melanoma" %}
+    <li>Surgical Removal: Primary treatment for localized melanoma.</li>
+    <li>Immunotherapy: (e.g., pembrolizumab) for advanced stages.</li>
+    <li>Targeted Therapy: For mutations like BRAF (e.g., vemurafenib).</li>
+    <li>Radiation Therapy: For metastasized melanoma.</li>
+    <li>Regular Monitoring: To detect recurrence early.</li>
+{% elif prediction == "Atopic Dermatitis" %}
+    <li>Moisturizers: Frequent use to maintain the skin barrier.</li>
+    <li>Topical Corticosteroids: For acute flare-ups.</li>
+    <li>Calcineurin Inhibitors: Tacrolimus for sensitive areas.</li>
+    <li>Phototherapy: For moderate to severe cases.</li>
+    <li>Lifestyle Modifications: Avoid allergens and irritants.</li>
+{% elif prediction == "Basal Cell Carcinoma (BCC)" %}
+    <li>Surgical Excision: To remove the tumor.</li>
+    <li>Mohs Surgery: For precision in removing cancerous tissue.</li>
+    <li>Topical Therapies: Imiquimod or 5-fluorouracil.</li>
+    <li>Radiation Therapy: If surgery is not an option.</li>
+    <li>Targeted Therapy: For advanced cases (e.g., vismodegib).</li>
+{% elif prediction == "Melanocytic Nevi" %}
+    <li>Observation: For benign moles without suspicious features.</li>
+    <li>Surgical Excision: If changes in size, color, or shape occur.</li>
+    <li>Biopsy: To rule out malignancy if suspicious.</li>
+{% elif prediction == "Benign Keratosis-like Lesions" %}
+    <li>Cryotherapy: To remove keratosis-like lesions.</li>
+    <li>Curettage: Scraping the lesion.</li>
+    <li>Electrocautery: To destroy tissue.</li>
+    <li>Observation: If lesions are asymptomatic.</li>
+{% elif prediction == "Psoriasis Pictures, Lichen Planus, and Related Diseases" %}
+    <li>Topical Treatments: Corticosteroids, vitamin D analogs for psoriasis.</li>
+    <li>Phototherapy: UV light therapy for severe cases.</li>
+    <li>Systemic Treatments: Methotrexate or biologics (e.g., adalimumab) for psoriasis.</li>
+    <li>Antihistamines: For itching in lichen planus.</li>
+    <li>Immune-Modulating Drugs: Tacrolimus for lichen planus.</li>
+{% elif prediction == "Seborrheic Keratoses and Other Benign Tumors" %}
+    <li>Cryotherapy: Freezing the growth.</li>
+    <li>Curettage: Scraping off the lesion.</li>
+    <li>Electrosurgery: Burning off the tumor.</li>
+    <li>Laser Treatment: For cosmetic purposes.</li>
+{% elif prediction == "Tinea, Ringworm, Candidiasis, and Other Fungal Infections" %}
+    <li>Topical Antifungals: Clotrimazole, terbinafine for mild cases.</li>
+    <li>Oral Antifungals: Fluconazole or itraconazole for severe cases.</li>
+    <li>Hygiene Practices: Keeping the skin dry and clean.</li>
+    <li>Lifestyle Changes: Avoid tight clothing, share personal items.</li>
+{% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Footer Links -->
+<div class="link-container">
+    <p>Need help? <a href="/about">Learn More</a></p>
+</div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('menu').classList.toggle('active');
+    }
+
+    function showEmail() {
+        alert('User Email: {{ username }}');
+    }
+</script>
+
+</body>
+</html>
